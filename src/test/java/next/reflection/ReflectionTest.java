@@ -6,11 +6,13 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
@@ -65,5 +67,37 @@ public class ReflectionTest {
 
         logger.debug(student.getName());
         logger.debug(String.valueOf(student.getAge()));
+    }
+
+    @Test
+    public void create() throws Exception {
+        Class<User> clazz = User.class;
+
+        User user = clazz.getDeclaredConstructor().newInstance();
+
+        Field name = user.getClass().getDeclaredField("name");
+        name.setAccessible(true);
+        name.set(user, "dddd");
+        name.setAccessible(false);
+
+        logger.debug(user.getName());
+        logger.debug(String.valueOf(user.getAge()));
+    }
+
+    @Test
+    public void EstimateTime() throws Exception {
+        Class<TimeRunner> clazz = TimeRunner.class;
+
+        TimeRunner timeRunner = clazz.getDeclaredConstructor().newInstance();
+
+        long start = System.currentTimeMillis();
+
+        for (Method declaredMethod : clazz.getDeclaredMethods()) {
+            if(declaredMethod.isAnnotationPresent(ElapsedTime.class)) {
+                declaredMethod.invoke(timeRunner, 1000);
+            }
+        }
+
+        assertThat(System.currentTimeMillis() - start).isCloseTo(1000, Offset.offset(500L));
     }
 }

@@ -47,4 +47,23 @@ public class ReflectionTest {
             }
         }
     }
+
+    @Test
+    public void privateFieldAccess() throws Exception {
+        Class<Student> clazz = Student.class;
+
+        Student student = clazz.getDeclaredConstructor().newInstance();
+        Field name = clazz.getDeclaredField("name");
+        name.setAccessible(true);
+        name.set(student, "재성");
+        name.setAccessible(false);
+
+        Field age = clazz.getDeclaredField("age");
+        age.setAccessible(true);
+        age.set(student, 25);
+        age.setAccessible(false);
+
+        logger.debug(student.getName());
+        logger.debug(String.valueOf(student.getAge()));
+    }
 }
